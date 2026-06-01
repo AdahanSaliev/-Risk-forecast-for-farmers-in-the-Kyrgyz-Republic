@@ -1,0 +1,6 @@
+{
+  "name": "AgroRisk Predictor",
+  "description": "Система прогнозирования сельскохозяйственных рисков с локальным хранением истории.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
