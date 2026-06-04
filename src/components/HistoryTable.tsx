@@ -24,16 +24,12 @@ export const HistoryTable: React.FC<HistoryTableProps> = ({ history, onClear }) 
   const handleExportCSV = () => {
     if (history.length === 0) return;
 
-    const headers = ['Дата', 'Время', 'Регион', 'Культура', 'Температура (°C)', 'Влажность (%)', 'Осадки (мм)', 'Ветер (м/с)', 'Уровень риска', 'Тип риска'];
+    const headers = ['Дата', 'Время', 'Регион', 'Культура', 'Уровень риска', 'Тип риска'];
     const rows = history.map(entry => [
-      new Date(entry.date).toLocaleDateString(),
-      new Date(entry.date).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
-      entry.region,
-      entry.cropType,
-      entry.temperature.toString(),
-      entry.humidity.toString(),
-      entry.rainfall.toString(),
-      entry.windSpeed.toString(),
+      new Date(entry.prediction_date).toLocaleDateString(),
+      new Date(entry.prediction_date).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+      entry.region_name,
+      entry.crop_name,
       entry.level,
       entry.type
     ]);
@@ -78,14 +74,14 @@ export const HistoryTable: React.FC<HistoryTableProps> = ({ history, onClear }) 
             Нет записей
           </div>
         ) : (
-          history.sort((a,b) => new Date(b.date).getTime() - new Date(a.date).getTime()).map(entry => (
+          history.sort((a,b) => new Date(b.prediction_date).getTime() - new Date(a.prediction_date).getTime()).map(entry => (
             <div key={entry.id} className="flex items-center justify-between p-3 bg-slate-50 rounded-xl border border-slate-100">
               <div className="flex flex-col">
-                <span className="text-sm font-bold text-slate-800">{entry.region}</span>
-                <span className="text-xs text-slate-400">{entry.cropType} • {formatTime(entry.date)}</span>
+                <span className="text-sm font-bold text-slate-800">{entry.region_name}</span>
+                <span className="text-xs text-slate-400">{entry.crop_name} • {formatTime(entry.prediction_date)}</span>
               </div>
               <span className={`text-xs font-bold uppercase text-right leading-tight ${getRiskColor(entry.color)}`}>
-                {entry.type.split(' ')[0]} {/* Shorten the risk type */}
+                {entry.type ? entry.type.split(' ')[0] : entry.level}
               </span>
             </div>
           ))

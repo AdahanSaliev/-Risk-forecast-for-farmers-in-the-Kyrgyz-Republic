@@ -14,7 +14,7 @@ const levelToScore = {
 export const RiskChart: React.FC<RiskChartProps> = ({ data }) => {
   // Take up to 7 most recent entries and reverse to show chronological left-to-right
   const chartData = [...data]
-    .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())
+    .sort((a, b) => new Date(b.prediction_date).getTime() - new Date(a.prediction_date).getTime())
     .slice(0, 7)
     .reverse();
 
@@ -64,7 +64,7 @@ export const RiskChart: React.FC<RiskChartProps> = ({ data }) => {
                   index === displayData.length - 1 ? 'text-slate-900 font-bold' : 'text-slate-400'
                 }`}
               >
-                {formatDay(item.date)}
+                {formatDay(item.prediction_date)}
               </div>
             </div>
           ))}

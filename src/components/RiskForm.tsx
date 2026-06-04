@@ -1,26 +1,34 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { FileText, ArrowRight } from 'lucide-react';
-import { AgroData } from '../types';
+import { AgroData, Region, Crop } from '../types';
 
 interface RiskFormProps {
   onSubmit: (data: AgroData) => void;
 }
 
 export const RiskForm: React.FC<RiskFormProps> = ({ onSubmit }) => {
+  const [regions, setRegions] = useState<Region[]>([]);
+  const [crops, setCrops] = useState<Crop[]>([]);
+
   const [formData, setFormData] = useState<AgroData>({
-    region: '',
+    region_id: 1,
+    crop_id: 1,
     temperature: 20,
     humidity: 50,
     rainfall: 10,
-    windSpeed: 5,
-    cropType: 'Пшеница'
+    wind_speed: 5
   });
+
+  useEffect(() => {
+    fetch('/api/regions').then(res => res.json()).then(setRegions).catch(console.error);
+    fetch('/api/crops').then(res => res.json()).then(setCrops).catch(console.error);
+  }, []);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     const { name, value, type } = e.target;
     setFormData(prev => ({
       ...prev,
-      [name]: type === 'number' ? Number(value) : value
+      [name]: Number(value)
     }));
   };
 
@@ -40,19 +48,14 @@ export const RiskForm: React.FC<RiskFormProps> = ({ onSubmit }) => {
         <div className="space-y-1">
           <label className="text-xs font-bold uppercase text-slate-400 tracking-wider flex">Регион</label>
           <select 
-            name="region"
-            value={formData.region}
+            name="region_id"
+            value={formData.region_id}
             onChange={handleChange}
             className="w-full bg-slate-100 border-none rounded-xl p-3 focus:ring-2 focus:ring-green-500 outline-none appearance-none"
           >
-            <option value="">Выберите регион</option>
-            <option value="Чуйская область">Чуйская область</option>
-            <option value="Ошская область">Ошская область</option>
-            <option value="Иссык-Кульская область">Иссык-Кульская область</option>
-            <option value="Нарынская область">Нарынская область</option>
-            <option value="Таласская область">Таласская область</option>
-            <option value="Баткенская область">Баткенская область</option>
-            <option value="Джалал-Абадская область">Джалал-Абадская область</option>
+            {regions.map(r => (
+              <option key={r.id} value={r.id}>{r.name}</option>
+            ))}
           </select>
         </div>
         
@@ -101,10 +104,10 @@ export const RiskForm: React.FC<RiskFormProps> = ({ onSubmit }) => {
             <label className="text-xs font-bold uppercase text-slate-400 tracking-wider flex">Ветер (м/с)</label>
             <input 
               type="number" 
-              name="windSpeed" 
+              name="wind_speed" 
               min="0"
               required
-              value={formData.windSpeed}
+              value={formData.wind_speed}
               onChange={handleChange}
               className="w-full bg-slate-100 border-none rounded-xl p-3 focus:ring-2 focus:ring-green-500 outline-none"
             />
@@ -114,16 +117,14 @@ export const RiskForm: React.FC<RiskFormProps> = ({ onSubmit }) => {
         <div className="space-y-1">
           <label className="text-xs font-bold uppercase text-slate-400 tracking-wider flex">Тип культуры</label>
           <select 
-            name="cropType" 
-            value={formData.cropType}
+            name="crop_id" 
+            value={formData.crop_id}
             onChange={handleChange}
             className="w-full bg-slate-100 border-none rounded-xl p-3 focus:ring-2 focus:ring-green-500 outline-none appearance-none"
           >
-            <option value="Пшеница">Пшеница</option>
-            <option value="Кукуруза">Кукуруза</option>
-            <option value="Ячмень">Ячмень</option>
-            <option value="Картофель">Картофель</option>
-            <option value="Подсолнечник">Подсолнечник</option>
+            {crops.map(c => (
+              <option key={c.id} value={c.id}>{c.name}</option>
+            ))}
           </select>
         </div>
       </div>

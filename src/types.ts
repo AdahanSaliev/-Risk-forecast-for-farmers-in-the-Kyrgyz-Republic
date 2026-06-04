@@ -1,12 +1,12 @@
 export type RiskLevel = 'Высокий' | 'Средний' | 'Низкий';
 
 export interface AgroData {
-  region: string;
+  region_id: number;
+  crop_id: number;
   temperature: number;
   humidity: number;
   rainfall: number;
-  windSpeed: number;
-  cropType: string;
+  wind_speed: number;
 }
 
 export interface RiskResult {
@@ -16,7 +16,25 @@ export interface RiskResult {
   color: 'red' | 'yellow' | 'green';
 }
 
-export interface HistoryEntry extends AgroData, RiskResult {
+export interface Region {
+  id: number;
+  name: string;
+  code: string;
+}
+
+export interface Crop {
+  id: number;
+  name: string;
+  category: string;
+}
+
+export interface HistoryEntry {
   id: string;
-  date: string;
+  prediction_date: string;
+  region_name: string;
+  crop_name: string;
+  level: RiskLevel;
+  type: string;
+  color: 'red' | 'yellow' | 'green';
+  recommendation: string;
 }

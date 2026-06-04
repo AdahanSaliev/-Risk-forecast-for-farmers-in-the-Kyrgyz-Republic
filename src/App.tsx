@@ -4,48 +4,57 @@ import { RiskForm } from './components/RiskForm';
 import { RiskResultCard } from './components/RiskResultCard';
 import { HistoryTable } from './components/HistoryTable';
 import { RiskChart } from './components/RiskChart';
-import { calculateRisk } from './lib/riskCalculator';
 import { AgroData, RiskResult, HistoryEntry } from './types';
-import initialData from './data.json';
 
 export default function App() {
   const [history, setHistory] = useState<HistoryEntry[]>([]);
   const [currentResult, setCurrentResult] = useState<RiskResult | null>(null);
 
   useEffect(() => {
-    // Load from LocalStorage
-    const saved = localStorage.getItem('agroRiskHistory');
-    if (saved) {
-      setHistory(JSON.parse(saved));
-    } else {
-      // Use initial demo data from data.json
-      const demoData = initialData as HistoryEntry[];
-      setHistory(demoData);
-      localStorage.setItem('agroRiskHistory', JSON.stringify(demoData));
-    }
+    fetchHistory();
   }, []);
 
-  const handleCalculate = (data: AgroData) => {
-    const risk = calculateRisk(data);
-    setCurrentResult(risk);
-
-    const newEntry: HistoryEntry = {
-      ...data,
-      ...risk,
-      id: crypto.randomUUID(),
-      date: new Date().toISOString()
-    };
-
-    const newHistory = [newEntry, ...history];
-    setHistory(newHistory);
-    localStorage.setItem('agroRiskHistory', JSON.stringify(newHistory));
+  const fetchHistory = async () => {
+    try {
+      const res = await fetch('/api/history');
+      if (res.ok) {
+        const data = await res.json();
+        setHistory(data);
+      }
+    } catch (err) {
+      console.error('Failed to fetch history', err);
+    }
   };
 
-  const handleClearHistory = () => {
+  const handleCalculate = async (data: AgroData) => {
+    try {
+      const res = await fetch('/api/predict', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(data),
+      });
+
+      if (res.ok) {
+        const result = await res.json();
+        setCurrentResult(result);
+        fetchHistory(); // Refresh history table
+      }
+    } catch (err) {
+      console.error('Failed to calculate risk', err);
+    }
+  };
+
+  const handleClearHistory = async () => {
     if (window.confirm('Вы уверены, что хотите очистить историю?')) {
-      setHistory([]);
-      localStorage.removeItem('agroRiskHistory');
-      setCurrentResult(null);
+      try {
+        const res = await fetch('/api/history', { method: 'DELETE' });
+        if (res.ok) {
+          setHistory([]);
+          setCurrentResult(null);
+        }
+      } catch (err) {
+        console.error('Failed to clear history', err);
+      }
     }
   };
 
